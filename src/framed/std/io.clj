@@ -6,14 +6,18 @@
            (java.nio.file Files StandardCopyOption))
   (:refer-clojure :exclude [spit]))
 
-(def tmpdir (System/getProperty "java.io.tmpdir"))
+(def ^:no-doc tmpdir (System/getProperty "java.io.tmpdir"))
 
-(defn data-input-stream [istream-like]
+(defn data-input-stream
+  "Coerce argument to an open java.io.DataInputStream"
+  [istream-like]
   (-> istream-like
       (io/input-stream)
       (DataInputStream.)))
 
-(defn data-output-stream [ostream-like]
+(defn data-output-stream
+  "Coerce argument to an open java.io.DataOutputStream"
+  [ostream-like]
   (-> ostream-like
       (io/output-stream)
       (DataOutputStream.)))

@@ -69,9 +69,12 @@
 
 ;;
 
-(def default-transit-encoding :msgpack)
+(def default-transit-encoding
+  "The default encoding used by read-transit and write-transit.
+   Defaults to :msgpack."
+  :msgpack)
 
-(def valid-transit-encodings #{:msgpack :json})
+(def ^:no-doc valid-transit-encodings #{:msgpack :json})
 
 (defn read-transit
   "Return an IteratorSeq of values from Transit-encoded input"
@@ -141,6 +144,8 @@
   clojure.java.io/Coercions
   (as-file [this] file))
 
+(alter-meta! #'->NippySeq assoc :private true)
+
 (defn coll->NippySeq
   "Construct a reified view of coll (encoded in Nippy) that is
    is both seqable and accessible as a file on disk
@@ -195,6 +200,8 @@
 
   clojure.java.io/Coercions
   (as-file [this] file))
+
+(alter-meta! #'->FressianSeq assoc :private true)
 
 (defn coll->FressianSeq
   "Construct a reified view of coll (encoded in Fressian) that is

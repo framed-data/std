@@ -31,11 +31,15 @@
   (let [factor (Math/pow 10 places)]
     (/ (Math/round (* v factor)) factor)))
 
-(defn mean [vs]
+(defn mean
+  "Return the arithmetic mean of vs, or nil if empty"
+  [vs]
   (when (seq vs)
     (/ (apply + vs) (count vs))))
 
-(defn median [vs]
+(defn median
+  "Return the median value of vs, or nil if empty"
+  [vs]
   (when (seq vs)
     (let [sorted (sort vs)
           len (count vs)
