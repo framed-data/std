@@ -46,3 +46,9 @@
   (is (= [1 2 3] (s/coll-wrap [1 2 3])))
   (is (= '(1 2 3) (s/coll-wrap '(1 2 3))))
   (is (= [{:foo 1}] (s/coll-wrap {:foo 1}))))
+
+(deftest test-flip
+  (let [m {:foo 1 :bar 2}
+        flipped-dissoc (s/flip dissoc)]
+    (is (= {:bar 2} (flipped-dissoc :foo m)))
+    (is (= {:bar 2} (s/flip dissoc :foo m)))))

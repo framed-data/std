@@ -94,3 +94,19 @@
      (coll-wrap [1 2 3]) ; => [1 2 3]"
   [x-or-xs]
   (if (sequential? x-or-xs) x-or-xs [x-or-xs]))
+
+(defn flip
+  "Takes two arguments in the reverse order of f ('flips' a function of two arguments)
+   If supplied a function with no args, returns a new function accepting the reversed args
+
+   Ex:
+     (flip dissoc :foo {:foo 1 :bar 2})
+     ; => {:bar 2}
+
+     (def flipped-dissoc (flip dissoc))
+     (flipped-dissoc :foo {:foo 1 :bar 2})
+     ; => {:bar 2}"
+  ([f]
+   (fn [y x] (f x y)))
+  ([f y x]
+   (f x y)))
