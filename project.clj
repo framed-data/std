@@ -1,4 +1,4 @@
-(defproject io.framed/std "0.1.2"
+(defproject io.framed/std "0.2.0"
   :description "A Clojure utility toolkit"
   :url "https://github.com/framed-data/std"
   :license {:name "MIT License"
