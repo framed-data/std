@@ -96,8 +96,10 @@
   (if (sequential? x-or-xs) x-or-xs [x-or-xs]))
 
 (defn flip
-  "Takes two arguments in the reverse order of f ('flips' a function of two arguments)
-   If supplied a function with no args, returns a new function accepting the reversed args
+  "Takes two arguments in the reverse order of f ('flips' a function
+   of two arguments)
+   If supplied a function with no args, returns a new function
+   accepting the reversed args
 
    Ex:
      (flip dissoc :foo {:foo 1 :bar 2})
@@ -110,3 +112,11 @@
    (fn [y x] (f x y)))
   ([f y x]
    (f x y)))
+
+(defmacro future-loop
+  "Execute body repeatedly within a future, returning the future"
+  [& body]
+  `(future
+     (loop []
+       ~@body
+       (recur))))
