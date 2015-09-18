@@ -22,10 +22,7 @@
             [clojure.string :as string]
             [cognitect.transit :as transit]
             [taoensso.nippy :as nippy]
-            [framed.std.io :as std.io]
-            (framed.std
-              [core :as std]
-              [io :as std.io]))
+            [framed.std.io :as std.io])
   (:import (java.io BufferedReader
                     FileReader
                     EOFException
@@ -79,34 +76,24 @@
 
 (def ^:no-doc valid-transit-encodings #{:msgpack :json})
 
-(defn- read-transit' [istream reader]
-  (lazy-seq
-    (try (cons (transit/read reader)
-               (read-transit' istream reader))
-      (catch RuntimeException ex
-        (when (instance? EOFException (.getCause ex))
-          (.close istream)
-          nil)))))
-
 (defn read-transit
-  "Return a lazy seq of values from Transit-encoded input"
+  "Return an IteratorSeq of values from Transit-encoded input"
   ([istream-like]
    (read-transit default-transit-encoding istream-like))
   ([encoding istream-like]
    (let [istream (io/input-stream istream-like)
          reader (transit/reader istream encoding)]
-     (read-transit' istream reader))))
+     (transit/read reader))))
 
 (defn write-transit
   "encoding - one of :json, :msgpack"
-  ([ostream-like coll]
-   (write-transit ostream-like default-transit-encoding coll))
-  ([ostream-like encoding coll]
+  ([ostream-like data]
+   (write-transit ostream-like default-transit-encoding data))
+  ([ostream-like encoding data]
    {:pre [(contains? valid-transit-encodings encoding)]}
    (with-open [ostream (io/output-stream ostream-like)]
      (let [writer (transit/writer ostream encoding)]
-       (doseq [x coll]
-         (transit/write writer x))))
+       (transit/write writer data)))
    ostream-like))
 
 ;;
