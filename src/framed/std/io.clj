@@ -73,11 +73,11 @@
   (io/file link))
 
 (defn move
-  "Atomically move file-like src to file-like dest
+  "Atomically move file-like src to file-like dest and return dest.
    Throws error if dest already exists"
   [src dest]
   (if (.exists (io/file dest))
     (throw (IllegalArgumentException. "dest already exists"))
     (let [copy-opts (into-array [StandardCopyOption/ATOMIC_MOVE])]
       (Files/move (->Path src) (->Path dest) copy-opts)
-      (io/file dest))))
+      dest)))
