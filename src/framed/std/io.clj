@@ -1,26 +1,24 @@
 (ns framed.std.io
   "I/O utility functions to complement clojure.java.io"
   (:require [clojure.java.io :as io])
-  (:import (java.io File DataInputStream DataOutputStream)
+  (:import (java.io Closeable File DataInputStream DataOutputStream)
            (org.apache.commons.io IOUtils)
            (java.nio.file Files StandardCopyOption))
   (:refer-clojure :exclude [spit]))
 
-(def ^:no-doc tmpdir (System/getProperty "java.io.tmpdir"))
+(def tmpdir
+  "The system temporary directory"
+  (System/getProperty "java.io.tmpdir"))
 
 (defn data-input-stream
   "Coerce argument to an open java.io.DataInputStream"
   [istream-like]
-  (-> istream-like
-      (io/input-stream)
-      (DataInputStream.)))
+  (DataInputStream. (io/input-stream istream-like)))
 
 (defn data-output-stream
   "Coerce argument to an open java.io.DataOutputStream"
   [ostream-like]
-  (-> ostream-like
-      (io/output-stream)
-      (DataOutputStream.)))
+  (DataOutputStream. (io/output-stream ostream-like)))
 
 (defn stream-copy
   "Copy from input stream to output stream.
@@ -67,10 +65,10 @@
 
 (defn create-link
   "Create a hard-link for file-like link to file-like existing
-   Returns a File reference to the link"
+   Returns link"
   [link existing]
   (Files/createLink (->Path link) (->Path existing))
-  (io/file link))
+  link)
 
 (defn move
   "Atomically move file-like src to file-like dest and return dest.
@@ -81,3 +79,9 @@
     (let [copy-opts (into-array [StandardCopyOption/ATOMIC_MOVE])]
       (Files/move (->Path src) (->Path dest) copy-opts)
       dest)))
+
+(defn close
+  "Close the given java.io.Closeable and return nil"
+  [^Closeable x]
+  (.close x)
+  nil)

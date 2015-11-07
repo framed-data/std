@@ -28,6 +28,19 @@
   (prop/for-all [vs (gen/vector gen/simple-type-printable)]
     (= (seq (coll->FressianSeq vs)) (seq vs))))
 
+(deftest test-read-csv
+  (let [f (std.io/tempfile)]
+    (write-csv f
+               ["name","age"]
+               [["John" 27]
+                ["Mary" 28]])
+    (is (= [["name","age"] ["John" "27"] ["Mary" "28"]]
+           (read-csv f))
+        "It reads labels and rows")
+    (is (= [["John" "27"] ["Mary" "28"]]
+           (read-csv true f))
+        "It drops headers")))
+
 (deftest test-write-csv
   (let [w (java.io.StringWriter.)]
     (write-csv w
