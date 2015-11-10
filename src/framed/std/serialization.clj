@@ -23,13 +23,30 @@
             [cognitect.transit :as transit]
             [taoensso.nippy :as nippy]
             [framed.std.io :as std.io])
-  (:import (java.io BufferedReader
-                    FileReader
-                    EOFException
-                    InputStream)
+  (:import (java.io EOFException InputStream)
            org.apache.commons.io.IOUtils
-           java.util.Arrays
-           java.nio.charset.StandardCharsets))
+           org.apache.avro.file.FileReader))
+
+(defn- closing-seq
+  "Yield the contents of coll as a lazy-seq, calling .close on state
+   when exhausted"
+  [state coll]
+  (lazy-seq
+    (if (seq coll)
+      (cons (first coll) (closing-seq state (rest coll)))
+      (std.io/close state))))
+
+(defn- consume-with
+  "Return a lazy seq of values from repeatedly invoking f on input,
+   (ex: an InputStream or Reader), calling .close on input when exhausted
+   by EOFException"
+  [f input]
+  (lazy-seq
+    (try (cons (f input) (consume-with f input))
+      (catch EOFException ex
+        (std.io/close input)))))
+
+;;
 
 (defn read-csv
   "Return a lazy sequence of rows as vectors of strings
@@ -39,9 +56,9 @@
   ([drop-header reader-like]
    (let [reader (io/reader reader-like)
          rows (csv/parse-csv reader)]
-     (if drop-header
-       (drop 1 rows)
-       rows))))
+     (closing-seq
+       reader
+       (if drop-header (rest rows) rows)))))
 
 (defn write-csv
   "labels - Seq of column labels, ex ['user_id' 'user_email'] (can be empty)
@@ -58,8 +75,18 @@
 
 ;;
 
-(defn read-json [reader-like]
+(defn read-json
+  "Parse the contents of reader-like as a JSON value"
+  [reader-like]
   (json/parse-string (slurp reader-like)))
+
+(defn read-jsonl
+  "Return a lazy sequence of objects from newline-delimited JSON input
+   (JSON Lines)
+   See http://jsonlines.org/"
+  [reader-like]
+  (let [reader (io/reader reader-like)]
+    (closing-seq reader (json/parsed-seq reader))))
 
 (defn write-json
   "Write arbitrary data as JSON to writer-like and return writer-like"
@@ -77,13 +104,13 @@
 (def ^:no-doc valid-transit-encodings #{:msgpack :json})
 
 (defn read-transit
-  "Return an IteratorSeq of values from Transit-encoded input"
+  "Parse the contents of reader-like as a Transit value"
   ([istream-like]
    (read-transit default-transit-encoding istream-like))
   ([encoding istream-like]
-   (let [istream (io/input-stream istream-like)
-         reader (transit/reader istream encoding)]
-     (transit/read reader))))
+   (with-open [istream (io/input-stream istream-like)]
+     (let [reader (transit/reader istream encoding)]
+       (transit/read reader)))))
 
 (defn write-transit
   "encoding - one of :json, :msgpack"
@@ -98,7 +125,9 @@
 
 ;;
 
-(defn read-edn [reader-like]
+(defn read-edn
+  "Parse the contents of reader-like as a EDN value"
+  [reader-like]
   (edn/read-string (slurp reader-like)))
 
 (defn write-edn
@@ -109,20 +138,11 @@
 
 ;;
 
-(defn- read-nippy' [istream]
-  (lazy-seq
-    (try (cons (nippy/thaw-from-stream! istream)
-               (read-nippy' istream))
-      (catch EOFException ex
-        (do
-          (.close istream)
-          nil)))))
-
 (defn read-nippy
   "Return a lazy seq of values from Nippy-encoded input"
   [istream-like]
   (let [istream (std.io/data-input-stream istream-like)]
-    (read-nippy' istream)))
+    (consume-with nippy/thaw-from-stream! istream)))
 
 (defn write-nippy
   "Write a coll of values as Nippy to ostream-like and return ostream-like"
@@ -173,21 +193,12 @@
         (fressian/write-object writer x))))
   ostream-like)
 
-(defn- read-fressian' [reader]
-  (lazy-seq
-    (try (cons (fressian/read-object reader)
-               (read-fressian' reader))
-      (catch EOFException ex
-        (do
-          (.close reader)
-          nil)))))
-
 (defn read-fressian
-  "Return a lazy seq of values from Nippy-encoded input"
+  "Return a lazy seq of values from Fressian-encoded input"
   [istream-like]
   (let [reader (->> (io/input-stream istream-like)
                     fressian/create-reader)]
-    (read-fressian' reader)))
+    (consume-with fressian/read-object reader)))
 
 (deftype FressianSeq [file]
   clojure.lang.Seqable
@@ -224,46 +235,45 @@
 (def avro-schema
   "Alias over Abracad for specifying an Avro RecordSchema
    See https://github.com/damballa/abracad for format documentation
-
    Ex:
-   (def schema
-     (avro-schema {:type \"record\"
-                   :name \"User\"
-                   :fields [{:name \"age\" :type \"long\"}
-                            {:name \"email\" :type \"string\"}]})"
+     (def schema
+       (avro-schema {:type \"record\"
+                     :name \"User\"
+                     :fields [{:name \"age\" :type \"long\"}
+                              {:name \"email\" :type \"string\"}]})"
   avro/parse-schema)
 
 (defn write-avro
-  "Write coll of records each conforming to schema to file-like x
+  "Write coll of records each conforming to schema to ostream-like
    Ex:
+     (def schema
+       (avro-schema {:type \"record\"
+                     :name \"User\"
+                     :fields [{:name \"age\" :type \"long\"}
+                              {:name \"email\" :type \"string\"}]})
+     (write-avro \"test.avro\" schema [{:age 27 :email \"foo@example.com\"}
+                                       {:age 32 :email \"bar@example.com\"}])
+     ; => #<File test.avro>"
+  [ostream-like schema coll]
+  (avro/mspit schema ostream-like coll)
+  ostream-like)
 
-   (def schema
-     (avro-schema {:type \"record\"
-                   :name \"User\"
-                   :fields [{:name \"age\" :type \"long\"}
-                            {:name \"email\" :type \"string\"}]})
-   (write-avro \"test.avro\" schema [{:age 27 :email \"foo@example.com\"}
-                                     {:age 32 :email \"bar@example.com\"}])
-   ; => #<File test.avro>"
-  [x schema coll]
-  (avro/mspit schema x coll)
-  (io/file x))
-
-(defn- read-avro' [adf]
+(defn- read-avro' [^FileReader adf]
   (lazy-seq
     (if (.hasNext adf)
       (cons (.next adf) (read-avro' adf))
-      (do (.close adf)
-          nil))))
+      (std.io/close adf))))
 
 (defn read-avro
-  "TODO: if passed an InputStream, will consume entire stream
-   in-memory (arbitrarily large files are OK)"
+  "Return a lazy seq of values from Avro-encoded File or InputStream
+
+   TODO: if passed an InputStream, will consume entire stream
+   in-memory (arbitrarily large files are safe)"
   [x]
   (let [source
         (if (instance? InputStream x)
           (let [bs (IOUtils/toByteArray x)] ; Consumes entire stream!
-            (.close x)
+            (std.io/close x)
             bs)
           (.getPath (io/file x)))]
     (->> source
