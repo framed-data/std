@@ -1,6 +1,6 @@
 (ns framed.std.core
   "Utility functions to complement clojure.core"
-  (:refer-clojure :exclude [mapcat]))
+  (:refer-clojure :exclude [mapcat shuffle]))
 
 (defn mapcat
   "Like clojure.core/mapcat over a single coll without object
@@ -15,6 +15,14 @@
     (when (seq coll)
       (concat (f (first coll))
               (mapcat f (rest coll))))))
+
+(defn shuffle
+  "Same as clojure.core/shuffle but accepts source of randomness
+   for deterministic testing"
+  [^java.util.Random rng ^java.util.Collection coll]
+  (let [al (java.util.ArrayList. coll)]
+    (java.util.Collections/shuffle al rng)
+    (clojure.lang.RT/vector (.toArray al))))
 
 (defmacro map-from-keys
   "Given symbols, e.g. `(map-from-keys foo bar)`,
