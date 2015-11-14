@@ -11,6 +11,11 @@
     (is (= (clojure.core/mapcat identity vs) (s/mapcat identity vs)))
     (is (= (clojure.core/mapcat seq vs) (s/mapcat seq vs)))))
 
+(deftest test-shuffle
+  (let [rng (java.util.Random. 1)]
+    (is (= [7 10 8 9 5 3 1 4 2 6]
+           (s/shuffle (java.util.Random. 1) [1 2 3 4 5 6 7 8 9 10])))))
+
 (deftest test-map-from-keys
   (let [foo 1
         bar 2]
