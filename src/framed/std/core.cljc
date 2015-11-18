@@ -16,13 +16,14 @@
       (concat (f (first coll))
               (mapcat f (rest coll))))))
 
-(defn shuffle
-  "Same as clojure.core/shuffle but accepts source of randomness
-   for deterministic testing"
-  [^java.util.Random rng ^java.util.Collection coll]
-  (let [al (java.util.ArrayList. coll)]
-    (java.util.Collections/shuffle al rng)
-    (clojure.lang.RT/vector (.toArray al))))
+#?(:clj
+  (defn shuffle
+    "Same as clojure.core/shuffle but accepts source of randomness
+    for deterministic testing"
+    [^java.util.Random rng ^java.util.Collection coll]
+    (let [al (java.util.ArrayList. coll)]
+      (java.util.Collections/shuffle al rng)
+      (clojure.lang.RT/vector (.toArray al)))))
 
 (defmacro map-from-keys
   "Given symbols, e.g. `(map-from-keys foo bar)`,
@@ -121,10 +122,11 @@
   ([f y x]
    (f x y)))
 
-(defmacro future-loop
-  "Execute body repeatedly within a future, returning the future"
-  [& body]
-  `(future
-     (loop []
-       ~@body
-       (recur))))
+#?(:clj
+  (defmacro future-loop
+    "Execute body repeatedly within a future, returning the future"
+    [& body]
+    `(future
+       (loop []
+         ~@body
+         (recur)))))
