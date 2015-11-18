@@ -1,8 +1,8 @@
 (defproject io.framed/std "0.1.5"
   :description "A Clojure utility toolkit"
   :url "https://github.com/framed-data/std"
-  :license {:name "MIT License"
-            :url "http://opensource.org/licenses/MIT"}
+  :license {:name "Eclipse Public License"
+            :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [clj-json "0.5.3"]
                  [clojure-csv/clojure-csv "2.0.1"]
