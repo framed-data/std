@@ -55,7 +55,7 @@
   ([date period n]
    (period-interval date period n (inc n)))
   ([date period n0 n1]
-   {:pre [(< n0 n1)]}
+   {:pre [date period n0 n1 (< n0 n1)]}
    (tcore/interval
      (periods-from date period n0)
      (periods-from date period n1))))

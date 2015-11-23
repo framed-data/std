@@ -1,4 +1,4 @@
-(defproject io.framed/std "0.1.6"
+(defproject io.framed/std "0.1.7"
   :description "A Clojure utility toolkit"
   :url "https://github.com/framed-data/std"
   :license {:name "Eclipse Public License"
@@ -17,6 +17,4 @@
                  [org.clojure/test.check "0.8.0"]]
   :plugins [[codox "0.8.13"]
             [lein-cljsbuild "1.0.6"]]
-  :cljsbuild {:builds []}
-  ;:codox {:src-dir-uri "http://github.com/framed-data/std/tree/master"}
-  )
+  :cljsbuild {:builds []})
