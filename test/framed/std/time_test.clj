@@ -32,6 +32,8 @@
       "It calculates multiple periods forward correctly."))
 
 (deftest test-period-interval
+  (is (thrown? AssertionError
+               (std.time/period-interval (tcore/date-time 2015 1 1) nil -1 0)))
   (is (= (tcore/interval
            (tcore/date-time 2014 11 6)
            (tcore/date-time 2014 11 13))
