@@ -94,6 +94,15 @@
   (spit writer-like (json/generate-string data))
   writer-like)
 
+(defn write-jsonl
+  "Write arbitrary data as JSONL to writer-like and return writer-like"
+  [writer-like data]
+  (with-open [w (io/writer writer-like)]
+    (doseq [d data]
+      (json/generate-to-writer d w)
+      (.write w "\n")))
+  writer-like)
+
 ;;
 
 (def default-transit-encoding

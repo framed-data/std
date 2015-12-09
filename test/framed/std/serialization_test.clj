@@ -67,6 +67,15 @@
            "0.333,0.14\n3.1415,0.492\n")
         "It writes decimals")))
 
+(deftest test-write-jsonl
+  (let [data [{:foo :bar}
+              {:baz :quux}]
+        tempfile (std.io/tempfile)
+        result (write-jsonl tempfile data)]
+    (is (= (read-jsonl tempfile)
+           [{"foo" "bar"}
+            {"baz" "quux"}]))))
+
 (deftest test-file->NippySeq
   (let [colls [[1 2] [3 4] [5 6]]
         paths (map (fn [_] (std.io/tempfile)) colls)]
