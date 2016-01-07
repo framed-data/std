@@ -1,5 +1,7 @@
 (ns framed.std.core
   "Utility functions to complement clojure.core"
+  (:require #?(:clj [clojure.edn]
+               :cljs [cljs.reader]))
   (:refer-clojure :exclude [mapcat shuffle]))
 
 (defn mapcat
@@ -19,7 +21,7 @@
 #?(:clj
   (defn shuffle
     "Same as clojure.core/shuffle but accepts source of randomness
-    for deterministic testing"
+     for deterministic testing"
     [^java.util.Random rng ^java.util.Collection coll]
     (let [al (java.util.ArrayList. coll)]
       (java.util.Collections/shuffle al rng)
@@ -85,19 +87,26 @@
           [(key-fn k) (val-fn v)])
         coll)))
 
-(def map-kv
-  "Same as `map-tup` but returns results in a map"
+(def
+  ^{:doc "Same as `map-tup` but returns results in a map"
+    :arglists '([val-fn coll] [key-fn val-fn coll])}
+  map-kv
   (comp (partial into {}) map-tup))
 
 (defn when-assoc-in
- "When v is truthy, assoc it into coll. Otherwise just return coll"
+ "When v is truthy, assoc it into coll at ks. Otherwise return coll"
   [coll ks v]
-  (if-not v
-    coll
-    (assoc-in coll ks v)))
+  (if v
+    (assoc-in coll ks v)
+    coll))
+
+(defn when-assoc
+ "When v is truthy, assoc it into coll at k. Otherwise return coll"
+  [coll k v]
+  (when-assoc-in coll [k] v))
 
 (defn coll-wrap
-  "Wrap value in a vector if it is not coll-like already
+  "Wrap value in a vector if it is not sequential already
    Ex:
      (coll-wrap 2)       ; => [2]
      (coll-wrap [1 2 3]) ; => [1 2 3]"
@@ -130,3 +139,15 @@
        (loop []
          ~@body
          (recur)))))
+
+(defn to-edn
+  "pr-str x only if it is truthy, else return nil"
+  [x]
+  (when x
+    (pr-str x)))
+
+(defn from-edn
+  "Attempt to parse x as EDN, or return nil on failure"
+  [x]
+  #?(:clj (try (clojure.edn/read-string x) (catch Exception ex nil))
+     :cljs (try (cljs.reader/read-string x) (catch js/Error ex nil))))

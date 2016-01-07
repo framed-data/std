@@ -1,7 +1,7 @@
 (ns framed.std.io
   "I/O utility functions to complement clojure.java.io"
   (:require [clojure.java.io :as io])
-  (:import (java.io Closeable File DataInputStream DataOutputStream)
+  (:import (java.io File DataInputStream DataOutputStream)
            (org.apache.commons.io IOUtils)
            (java.nio.file Files StandardCopyOption))
   (:refer-clojure :exclude [spit]))
@@ -79,9 +79,3 @@
     (let [copy-opts (into-array [StandardCopyOption/ATOMIC_MOVE])]
       (Files/move (->Path src) (->Path dest) copy-opts)
       dest)))
-
-(defn close
-  "Close the given java.io.Closeable and return nil"
-  [^Closeable x]
-  (.close x)
-  nil)
