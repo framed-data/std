@@ -34,7 +34,7 @@
   (lazy-seq
     (if (seq coll)
       (cons (first coll) (closing-seq state (rest coll)))
-      (std.io/close state))))
+      (.close state))))
 
 (defn- consume-with
   "Return a lazy seq of values from repeatedly invoking f on input,
@@ -44,7 +44,7 @@
   (lazy-seq
     (try (cons (f input) (consume-with f input))
       (catch EOFException ex
-        (std.io/close input)))))
+        (.close input)))))
 
 ;;
 
@@ -271,7 +271,7 @@
   (lazy-seq
     (if (.hasNext adf)
       (cons (.next adf) (read-avro' adf))
-      (std.io/close adf))))
+      (.close adf))))
 
 (defn read-avro
   "Return a lazy seq of values from Avro-encoded File or InputStream
@@ -282,7 +282,7 @@
   (let [source
         (if (instance? InputStream x)
           (let [bs (IOUtils/toByteArray x)] ; Consumes entire stream!
-            (std.io/close x)
+            (.close x)
             bs)
           (.getPath (io/file x)))]
     (->> source
