@@ -46,6 +46,11 @@
     (is (= {:foo 1 :bar 2} (s/when-assoc-in m [:bar] 2)))
     (is (= {:foo 1 :bar {:norf 3}} (s/when-assoc-in m [:bar :norf] 3)))))
 
+(deftest test-when-assoc
+  (let [m {:foo 1}]
+    (is (= {:foo 1} (s/when-assoc m :bar nil)))
+    (is (= {:foo 1 :bar 2} (s/when-assoc m :bar 2)))))
+
 (deftest test-coll-wrap
   (is (= [2] (s/coll-wrap 2)))
   (is (= [1 2 3] (s/coll-wrap [1 2 3])))
@@ -57,3 +62,11 @@
         flipped-dissoc (s/flip dissoc)]
     (is (= {:bar 2} (flipped-dissoc :foo m)))
     (is (= {:bar 2} (s/flip dissoc :foo m)))))
+
+(deftest test-to-edn
+  (is (= "{:hello \"world\"}" (s/to-edn {:hello "world"})))
+  (is (= nil (s/to-edn nil))))
+
+(deftest test-from-edn
+  (is (= {:hello "world"} (s/from-edn "{:hello \"world\"}")))
+  (is (= nil (s/from-edn nil))))
