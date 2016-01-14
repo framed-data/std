@@ -1,4 +1,4 @@
-(defproject io.framed/std "0.1.9"
+(defproject io.framed/std "0.2.0"
   :description "A Clojure utility toolkit"
   :url "https://github.com/framed-data/std"
   :license {:name "Eclipse Public License"
@@ -14,6 +14,7 @@
                  [commons-io/commons-io "2.4"]
                  [org.clojure/data.fressian "0.2.1"]
                  [clj-time "0.8.0"]
+                 [com.andrewmcveigh/cljs-time "0.4.0"]
                  [org.clojure/test.check "0.8.0"]]
   :plugins [[codox "0.8.13"]
             [lein-cljsbuild "1.0.6"]]
