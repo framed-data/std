@@ -1,9 +1,9 @@
 (ns framed.std.time
-  "Date/time utilities on top of JodaTime/clj-time"
-  (:require (clj-time
-              [core :as tcore]
-              [coerce :as tcoerce]))
-  (:import org.joda.time.DateTime))
+  "Date/time utilities on top of JodaTime/clj-time and goog.date/cljs-time"
+  (:require #?(:clj [clj-time.core :as tcore]
+               :cljs [cljs-time.core :as tcore])
+            #?(:clj [clj-time.coerce :as tcoerce]
+               :cljs [cljs-time.coerce :as tcoerce])))
 
 (defn days-in
   "Return a sequence of all days in an interval (left-inclusive, right exclusive)
@@ -39,7 +39,7 @@
 
 (defn period-interval
   "Given a period (e.g. 7 days), return the interval that is N
-   periods from date. Period must be joda.time.ReadablePeriod,
+   periods from date. Period must be a clj(s)-time period,
    ex: (clj-time.core/days 7)
 
    Zero denotes the interval starting from `date` and ending
@@ -62,8 +62,8 @@
 
 (defn at-midnight
   "Return the DateTime at midnight of a given date"
-  [^DateTime date]
-  (.toDateMidnight date))
+  [date]
+  (tcore/date-midnight (tcore/year date) (tcore/month date) (tcore/day date)))
 
 (defn unix->datetime
   "Return a DateTime from a Unix timestamp (in seconds)"
@@ -80,5 +80,5 @@
       long))
 
 (def str->inst
-  "Parse a string timestamp into a java.util.Date"
+  "Parse a string timestamp into a java.util.Date or goog.date.Date"
   (comp tcoerce/to-date tcoerce/from-string))
