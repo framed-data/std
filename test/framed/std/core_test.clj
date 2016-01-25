@@ -6,6 +6,10 @@
             [clojure.string :as string]
             [framed.std.core :as s]))
 
+(deftest test-find
+  (is (= 4 (s/find even? [1 1 1 1 3 3 3 3 4 5 5 6])))
+  (is (nil? (s/find even? [1 1 1 1 3 3 3]))))
+
 (defspec test-mapcat
   (prop/for-all [vs (gen/vector gen/string-alphanumeric)]
     (is (= (clojure.core/mapcat identity vs) (s/mapcat identity vs)))

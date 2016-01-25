@@ -2,7 +2,15 @@
   "Utility functions to complement clojure.core"
   (:require #?(:clj [clojure.edn]
                :cljs [cljs.reader]))
-  (:refer-clojure :exclude [mapcat shuffle]))
+  (:refer-clojure :exclude [find mapcat shuffle]))
+
+(defn find
+  "Return the first value of x in coll that is logically true for (pred x)
+   Similar to clojure.core/some, but returns the item itself.
+
+   Ex: (find even? [1 1 1 3 4 5 6]) ; => 4"
+  [pred coll]
+  (first (filter pred coll)))
 
 (defn mapcat
   "Like clojure.core/mapcat over a single coll without object
