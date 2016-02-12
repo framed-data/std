@@ -35,6 +35,11 @@
       (java.util.Collections/shuffle al rng)
       (clojure.lang.RT/vector (.toArray al)))))
 
+(defn single?
+  "Is coll of length 1?"
+  [coll]
+  (= 1 (count coll)))
+
 (defmacro map-from-keys
   "Given symbols, e.g. `(map-from-keys foo bar)`,
    return a map with those names as keyword keys, and those values:
