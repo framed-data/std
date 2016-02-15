@@ -20,10 +20,6 @@
     (is (= [7 10 8 9 5 3 1 4 2 6]
            (std/shuffle (java.util.Random. 1) [1 2 3 4 5 6 7 8 9 10])))))
 
-(deftest test-single?
-  (is (std/single? [99]))
-  (is (not (std/single? [1 2 3 4]))))
-
 (deftest test-map-from-keys
   (let [foo 1
         bar 2]
