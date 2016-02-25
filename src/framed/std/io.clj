@@ -70,12 +70,17 @@
   (Files/createLink (->Path link) (->Path existing))
   link)
 
+(defn move'
+  "Atomically move file-like src to file-like dest and return dest."
+  [src dest]
+  (let [copy-opts (into-array [StandardCopyOption/ATOMIC_MOVE])]
+    (Files/move (->Path src) (->Path dest) copy-opts)
+    dest))
+
 (defn move
   "Atomically move file-like src to file-like dest and return dest.
    Throws error if dest already exists"
   [src dest]
   (if (.exists (io/file dest))
     (throw (IllegalArgumentException. "dest already exists"))
-    (let [copy-opts (into-array [StandardCopyOption/ATOMIC_MOVE])]
-      (Files/move (->Path src) (->Path dest) copy-opts)
-      dest)))
+    (move' src dest)))
