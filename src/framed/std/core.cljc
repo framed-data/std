@@ -4,6 +4,12 @@
                :cljs [cljs.reader]))
   (:refer-clojure :exclude [find mapcat shuffle]))
 
+(defmacro def-
+  "Like `clojure.core/def`, but attaches :private metadata.
+  Counterpart to `clojure.core/defn-`"
+  [sym init]
+  `(def ~(with-meta sym {:private true}) ~init))
+
 (defn find
   "Return the first value of x in coll that is logically true for (pred x)
    Similar to clojure.core/some, but returns the item itself.
