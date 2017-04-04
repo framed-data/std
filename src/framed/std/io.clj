@@ -2,6 +2,7 @@
   "I/O utility functions to complement clojure.java.io"
   (:require [clojure.java.io :as io])
   (:import (java.io File DataInputStream DataOutputStream)
+           java.nio.file.Paths
            (org.apache.commons.io IOUtils)
            (java.nio.file Files StandardCopyOption))
   (:refer-clojure :exclude [spit]))
@@ -9,6 +10,17 @@
 (def tmpdir
   "The system temporary directory"
   (System/getProperty "java.io.tmpdir"))
+
+(defn path-get
+  "Wrapper for java.nio.file.PathslPaths.get - converts a String
+   or seq of Strings to a Path using the system file separator"
+  [part & parts]
+  (Paths/get part (into-array String parts)))
+
+(defn path-join
+  "Join Strings into a String path using the system file separator"
+  [part & parts]
+  (str (apply path-get part parts)))
 
 (defn data-input-stream
   "Coerce argument to an open java.io.DataInputStream"
