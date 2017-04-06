@@ -2,9 +2,9 @@
   (:import (java.math BigDecimal MathContext RoundingMode)))
 
 (defn nonzero?
-  "Is x non-nil and non-zero?"
-  [x]
-  (and x (not= 0 x)))
+  "Is v non-nil and non-zero?"
+  [v]
+  (and v (not= 0 v)))
 
 (defn divide-some
   "Zero-safe division (returns value or nil)"
@@ -14,11 +14,11 @@
     (/ n div)))
 
 (defn ^BigDecimal bigdecimal
-  "Convert x to a java.math.BigDecimal, representing ratios as doubles"
-  [x]
-  (if (ratio? x)
-    (bigdec (double x))
-    (bigdec x)))
+  "Convert v to a java.math.BigDecimal, representing ratios as doubles"
+  [v]
+  (if (ratio? v)
+    (bigdec (double v))
+    (bigdec v)))
 
 (defn ^BigDecimal round-bigdecimal
   "Round BigDecimal `v` to specified number of significant digits"
@@ -35,7 +35,7 @@
   "Return the arithmetic mean of vs, or nil if empty"
   [vs]
   (when (seq vs)
-    (/ (apply + vs) (count vs))))
+    (/ (reduce + vs) (count vs))))
 
 (defn median
   "Return the median value of vs, or nil if empty"
