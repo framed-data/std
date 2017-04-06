@@ -35,7 +35,7 @@
   "Return the arithmetic mean of vs, or nil if empty"
   [vs]
   (when (seq vs)
-    (/ (apply + vs) (count vs))))
+    (/ (reduce + vs) (count vs))))
 
 (defn median
   "Return the median value of vs, or nil if empty"
