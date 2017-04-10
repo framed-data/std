@@ -20,3 +20,15 @@
                 ostream (io/output-stream f2)]
       (std.io/stream-copy istream ostream))
     (is (= contents (slurp f2)))))
+
+(deftest test-copy
+  (let [contents "Hello,World"
+        src (std.io/spit (std.io/tempfile) contents)]
+    (testing "when dest does not exist"
+      (let [dest (std.io/copy src (std.io/tempfile))]
+        (is (= contents (slurp src)) "It does not modify src")
+        (is (not= (.getPath src) (.getPath dest)))
+        (is (= (slurp src) (slurp dest)))))
+    (testing "when dest exists and is non-empty"
+      (let [dest (std.io/spit (std.io/tempfile) "Already,Exists")]
+        (is (thrown? AssertionError (std.io/copy src dest)))))))
