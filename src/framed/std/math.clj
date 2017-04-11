@@ -78,3 +78,35 @@
   (if (> v max-val)
     max-val
     v))
+
+(defn- squared-deviations
+  "Return the set of squared deviations from items in `vs` to their mean"
+  [mean vs]
+  (map #(Math/pow (- % mean) 2) vs))
+
+(defn variance
+  "Compute the variance of `vs`. Divisor used is `n - ddof` where `ddof` represents
+   'delta degrees of freedom'. By default returns an unbiased estimate (ddof = 1)
+   For a biased estimate, set ddof = 0
+
+   See https://en.wikipedia.org/wiki/Bessel%27s_correction
+       https://en.wikipedia.org/wiki/Degrees_of_freedom_(statistics)"
+  ([vs]
+   (variance vs 1))
+  ([vs ddof]
+   {:pre [(number? ddof) (>= ddof 0)]}
+   (when (seq vs)
+     (/ (reduce + (squared-deviations (mean vs) vs))
+        (- (count vs) ddof)))))
+
+(defn std-dev
+  "Compute the standard deviation of `vs`. Divisor used is `n - ddof` where `ddof`
+   represents 'delta degrees of freedom'. By default returns an unbiased
+   estimate (ddof = 1). For a biased estimate, set ddof = 0
+
+   See https://en.wikipedia.org/wiki/Bessel%27s_correction
+       https://en.wikipedia.org/wiki/Degrees_of_freedom_(statistics)"
+  ([vs]
+   (std-dev vs 1))
+  ([vs ddof]
+   (some-> (variance vs ddof) Math/sqrt)))
