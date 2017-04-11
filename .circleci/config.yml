@@ -1,0 +1,8 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/std
+    machine: true
+    steps:
+      - checkout
+      - run: bin/lein test
