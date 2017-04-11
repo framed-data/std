@@ -96,3 +96,13 @@
   (if (.exists (io/file dest))
     (throw (IllegalArgumentException. "dest already exists"))
     (move' src dest)))
+
+(defn copy
+  "Copy file-like src to file-like dest and return dest. Asserts dest is
+   not a non-empty file (see `clojure.java.io/copy` for unchecked copies)
+
+   Note: May theoretically race between dest-checking and copying"
+  [src dest]
+  {:pre [(not (nonempty-file? dest))]}
+  (io/copy (io/file src) (io/file dest))
+  dest)
