@@ -11,15 +11,23 @@
     (is (= expected (std.io/path-join "foo" "bar" "quux.txt")))
     (is (= expected (std.io/path-join "foo/" "/bar" "quux.txt")))))
 
-(deftest test-stream-copy
+(defn- test-stream-copy' [bufsize]
   (let [contents "hello"
         f1 (std.io/spit (std.io/tempfile) contents)
         f2 (std.io/tempfile)]
     (is (empty? (slurp f2)))
     (with-open [istream (io/input-stream f1)
                 ostream (io/output-stream f2)]
-      (std.io/stream-copy istream ostream))
+      (if bufsize
+        (std.io/stream-copy bufsize istream ostream)
+        (std.io/stream-copy istream ostream)))
     (is (= contents (slurp f2)))))
+
+(deftest test-stream-copy
+  (testing "with explicit bufsize"
+    (test-stream-copy' 2))
+  (testing "with default bufsize"
+    (test-stream-copy' nil)))
 
 (deftest test-copy
   (let [contents "Hello,World"

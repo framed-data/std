@@ -32,14 +32,21 @@
   [ostream-like]
   (DataOutputStream. (io/output-stream ostream-like)))
 
+(def stream-copy-bufsize
+  "Buffer size to use for copying between streams, in bytes
+  See IOUtils.copyLarge https://commons.apache.org/proper/commons-io/javadocs/api-2.4/index.html"
+  64000000)
+
 (defn stream-copy
   "Copy from input stream to output stream.
    Does *not* close streams"
-  [input-stream output-stream]
-  (IOUtils/copyLarge
-    ^java.io.InputStream input-stream
-    ^java.io.OutputStream output-stream
-    (byte-array 64000000)))
+  ([input-stream output-stream]
+   (stream-copy stream-copy-bufsize input-stream output-stream))
+  ([bufsize input-stream output-stream]
+   (IOUtils/copyLarge
+     ^java.io.InputStream input-stream
+     ^java.io.OutputStream output-stream
+     (byte-array bufsize))))
 
 (defn spit
   "Like clojure.core/spit, but returns f"
