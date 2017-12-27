@@ -10,6 +10,11 @@
   (is (= 4 (std/find even? [1 1 1 1 3 3 3 3 4 5 5 6])))
   (is (nil? (std/find even? [1 1 1 1 3 3 3]))))
 
+(deftest test-find
+  (let [m {:foo 1}]
+    (is (= 1 (std/fetch m :foo)))
+    (is (thrown? AssertionError (std/fetch m :bar)))))
+
 (defspec test-mapcat
   (prop/for-all [vs (gen/vector gen/string-alphanumeric)]
     (is (= (clojure.core/mapcat identity vs) (std/mapcat identity vs)))

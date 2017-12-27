@@ -12,6 +12,12 @@
   [pred coll]
   (first (filter pred coll)))
 
+(defn fetch
+  "Like clojure.core/get, but raises an exception if no mapping is found for key"
+  [m k]
+  {:pre [(contains? m k)]}
+  (get m k))
+
 (defn mapcat
   "Like clojure.core/mapcat over a single coll without object
    reachability memory issues. This is especially useful when
