@@ -151,14 +151,14 @@
   "Return a lazy seq of values from Nippy-encoded input"
   [istream-like]
   (let [istream (std.io/data-input-stream istream-like)]
-    (consume-with nippy/thaw-from-stream! istream)))
+    (consume-with nippy/thaw-from-in! istream)))
 
 (defn write-nippy
   "Write a coll of values as Nippy to ostream-like and return ostream-like"
   [ostream-like coll]
   (with-open [ostream (std.io/data-output-stream ostream-like)]
     (doseq [x coll]
-      (nippy/freeze-to-stream! ostream x))
+      (nippy/freeze-to-out! ostream x))
     ostream-like))
 
 (deftype NippySeq [file]
